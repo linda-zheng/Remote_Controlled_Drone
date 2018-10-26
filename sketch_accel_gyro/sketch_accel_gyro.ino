@@ -1,7 +1,7 @@
 
 #include<Wire.h>
 
-//code source: http://forum.arduino.cc/index.php?topic=327519.0
+//https://forum.arduino.cc/index.php?topic=484327.0
 
 double accelX,accelY,accelZ,temperature,gyroX,gyroY,gyroZ,gyro_x_cal,gyro_y_cal,gyro_z_cal; //These will be the raw data from the MPU6050.
 uint32_t timer; //it's a timer, saved as a big-ass unsigned int.  We use it to save times from the "micros()" command and subtract the present time in microseconds from the time stored in timer to calculate the time for each loop.
