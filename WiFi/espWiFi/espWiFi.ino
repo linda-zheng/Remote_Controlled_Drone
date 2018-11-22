@@ -1,11 +1,13 @@
 #include <ESP8266WiFi.h>
-const char* ssid = "LindaIsCool";
+//setting up ssid and password for access point
+const char* ssid = "LindaIsCool"; 
 const char* password = "1234home";
 WiFiServer server(80);
 
 #include <SoftwareSerial.h>
-#define Arduino_RX 4 // D2
-#define Arduino_TX 5 // D1
+#define Arduino_RX 4 //pin D2 on NodeMCU
+#define Arduino_TX 5 //pin D1 on NodeMCU
+//set up serial object for communication with arduino
 SoftwareSerial ArduinoSerial(Arduino_RX, Arduino_TX);
 
 void droneUp();
@@ -24,6 +26,7 @@ void setup() {
 
 void loop() 
 {
+  Serial.println(WiFi.softAPIP());
    WiFiClient client = server.available();
       if (!client) { 
       return; 
@@ -43,8 +46,8 @@ void loop()
     }
 
   // Prepare the HTML document to respond and add buttons:
-  String s = "HTTP/1.1 200 OK\r\n";
-  s += "Content-Type: text/html\r\n\r\n";
+  String s = "HTTP/1.1 200 OK\r\n"; //responding using HTTP Protocol 1.1 200
+  s += "Content-Type: text/html\r\n\r\n"; //passing html content
   s += "<!DOCTYPE HTML>\r\n<html>\r\n";
   s += "<br><input type=\"button\" name=\"b1\" value=\"Drone Up\" onclick=\"location.href='/Up'\">";
   s += "<br><br><br>";

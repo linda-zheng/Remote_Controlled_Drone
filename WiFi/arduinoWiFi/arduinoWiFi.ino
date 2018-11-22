@@ -1,20 +1,20 @@
 #include <SoftwareSerial.h>
-#define ESP8266_RX   2
-#define ESP8266_TX   3
-SoftwareSerial ESPserial(ESP8266_RX, ESP8266_TX);
-char buffer[] = {' ',' ',' '};
+#define ESP8266_RX 2 //digital pin 2
+#define ESP8266_TX 3 //digital pin 3
+//set up serial object to communicate with NodeMCU
+SoftwareSerial ESPserial(ESP8266_RX, ESP8266_TX); 
+//connect digital pin 2 to D1 on NodeMCU
+//connect digital pin 3 to D2 on NodeMCU
 
 void setup() {
-  Serial.begin(19200);     // communication with the host computer
-  ESPserial.begin(9600);  
+  Serial.begin(19200);  //for debugging
+  ESPserial.begin(9600);  //for communication with NodeMCU
 }
 
 void loop() {
-
   if (ESPserial.available()){
-   // ESPserial.readBytes(buffer, 3);
-   // int hello = (buffer[0]-48)*100+(buffer[1]-48)*10+(buffer[2]-48);
-    int hello = ESPserial.read();
-    Serial.println(hello-48);
+     //set hello to the original single-digit integer that was sent by the NodeMCU
+     int hello = ESPserial.read()-48; 
+     Serial.print(hello); //for debugging
   }
 }
