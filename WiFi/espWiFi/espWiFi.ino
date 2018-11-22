@@ -1,71 +1,95 @@
 #include <ESP8266WiFi.h>
-//setting up ssid and password for access point
+//set up ssid and password for access point
 const char* ssid = "LindaIsCool"; 
 const char* password = "1234home";
 WiFiServer server(80);
 
 #include <SoftwareSerial.h>
-#define Arduino_RX 4 //pin D2 on NodeMCU
-#define Arduino_TX 5 //pin D1 on NodeMCU
+#define Arduino_RX 4 //pin D2 (GPIO4) on NodeMCU
+#define Arduino_TX 5 //pin D1 (GPIO5) on NodeMCU
 //set up serial object for communication with arduino
 SoftwareSerial ArduinoSerial(Arduino_RX, Arduino_TX);
 
+void droneOff();
 void droneUp();
 void droneDown();
+void droneLeft();
+void droneRight();
 
 void setup() {
   Serial.begin(115200);
   ArduinoSerial.begin(9600);
 
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password);
-  server.begin();
+  WiFi.mode(WIFI_AP); //set NodeMCU to access point mode
+  WiFi.softAP(ssid, password); //set credentials
+  server.begin(); //begin server
   delay(5000);
-  Serial.println(WiFi.softAPIP());
+  Serial.println(WiFi.softAPIP()); //for debugging
 }
 
 void loop() 
 {
-  Serial.println(WiFi.softAPIP());
-   WiFiClient client = server.available();
-      if (!client) { 
-      return; 
-    } 
+  WiFiClient client = server.available();
+  if (!client) { //if there is no client making a request, then keep looping until there is
+    return; 
+  } 
 
-    String request = client.readString();
+  String request = client.readString(); //store the request made by the client
+  
+  //check if request matches a button
+  //if it does, run the desired function
+  if (request.indexOf("/DRONEOFF") != -1) {
+    Serial.println("drone off");
+    droneOff();
+  } else if (request.indexOf("/DRONEDOWN") != -1){ 
+    Serial.println("drone down");
+    droneDown(); 
+  } else if (request.indexOf("/DRONEUP") != -1){ 
+    Serial.println("drone up");
+    droneUp(); 
+  } else if (request.indexOf("/DRONELEFT") != -1){ 
+    Serial.println("drone left");
+    droneLeft(); 
+  } else if (request.indexOf("/DRONERIGHT") != -1){ 
+    Serial.println("drone right");
+    droneRight(); 
+  } 
 
-    Serial.println("Somebody has connected :)");
-
-    if (request.indexOf("/Down") != -1){ 
-            droneDown(); 
-            Serial.println("droneDown command received via wifi");
-    }
-    else if (request.indexOf("/Up") != -1){ 
-            droneUp(); 
-            Serial.println("droneUp command received via wifi");
-    }
-
-  // Prepare the HTML document to respond and add buttons:
-  String s = "HTTP/1.1 200 OK\r\n"; //responding using HTTP Protocol 1.1 200
-  s += "Content-Type: text/html\r\n\r\n"; //passing html content
+  //prepare the html document
+  String s = "HTTP/1.1 200 OK\r\n"; //respond using HTTP Protocol 1.1 200
+  s += "Content-Type: text/html\r\n\r\n";
   s += "<!DOCTYPE HTML>\r\n<html>\r\n";
-  s += "<br><input type=\"button\" name=\"b1\" value=\"Drone Up\" onclick=\"location.href='/Up'\">";
-  s += "<br><br><br>";
-  s += "<input type=\"button\" name=\"bi\" value=\"Drone Down\" onclick=\"location.href='/Down'\">";
-  s += "</html>\n";
-  //Serve the HTML document to the browser.
-  client.flush ();
-  //clear previous info in the stream
+  s += "<br><br><br><p align=\"middle\"><input type=\"button\" name=\"bUp\" value=\"UP\" style=\"font-size:50px; height:125px; width:300px\" align=\"middle\" onclick=\"location.href='/DRONEUP'\"></p>";
+  s += "<br><br><br><p align=\"middle\"><input type=\"button\" name=\"bLeft\" value=\"LEFT\" style=\"font-size:50px; height:125px; width:300px\" onclick=\"location.href='/DRONELEFT'\">";
+  s += "&nbsp;&nbsp;&nbsp;<input type=\"button\" name=\"bOff\" value=\"OFF\" style=\"font-size:50px; height:125px; width:300px\" onclick=\"location.href='/DRONEOFF'\">";
+  s += "&nbsp;&nbsp;&nbsp;<input type=\"button\" name=\"bRight\" value=\"RIGHT\" style=\"font-size:50px; height:125px; width:300px\" onclick=\"location.href='/DRONERIGHT'\"></p>";
+  s += "<br><br><br><p align=\"middle\"><input type=\"button\" name=\"bDown\" value=\"DOWN\" style=\"font-size:50px; height:125px; width:300px\" onclick=\"location.href='/DRONEDOWN'\"></p>";
+  s += "<br></html>\n";
+    
+  client.flush (); //clear previous info in the stream
   client.print (s); // Send the response to the client
-  delay(1);
-  Serial.println("Client disonnected" );
+  Serial.println("Client disonnected" ); //for debugging
   delay(500);
 } 
+
+
+//the functions below send a character to the arduino corresponding to the button that was pressed
+void droneOff() {
+  ArduinoSerial.print(0);  
+}
 
 void droneUp() {
   ArduinoSerial.print(1); 
 }
 
 void droneDown() {
-  ArduinoSerial.print(0); 
+  ArduinoSerial.print(2); 
+}
+
+void droneLeft() {
+  ArduinoSerial.print(3);  
+}
+
+void droneRight() {
+  ArduinoSerial.print(4);  
 }
